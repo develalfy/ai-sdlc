@@ -1,9 +1,8 @@
 # ai-sdlc — A Collaboration Protocol for AI-Assisted Software Tasks
 
-**Status:** Draft / pre-dogfood · Generated from CEO review on 2026-08-22
-**Repo target:** `github.com/<owner>/ai-sdlc` (not yet pushed)
-**License:** MIT (proposed)
-**Mode:** Open protocol + reference skill, not a SaaS
+**Status:** Local-only draft, not yet public.
+**Repo target:** `github.com/elalfy/ai-sdlc` (planned, not yet pushed)
+**License:** MIT
 
 ---
 
@@ -11,9 +10,9 @@
 
 A small, opinionated **protocol** that an AI coding agent must follow end-to-end on a software task, plus a reference skill that implements it. It exists because:
 
-1. AI output on non-trivial tasks is **chunked, half-finished, and unverified** (the founder's actual lived pain).
+1. AI output on non-trivial tasks is **chunked, half-finished, and unverified**.
 2. Existing agent harnesses (`claude-code`, `opencode`, `aider`, `devin`) lack a **collaboration-grade** contract — anyone can fork, but no shared standard exists for "what done means."
-3. A public protocol attracts contributors; a SaaS attracts customers. The founder wants collaborators.
+3. A public protocol attracts contributors; a SaaS attracts customers. This is a protocol.
 
 ## What this is NOT
 
@@ -22,74 +21,53 @@ A small, opinionated **protocol** that an AI coding agent must follow end-to-end
 - Not a SaaS / hosted product.
 - Not a research paper.
 
-## Core idea
+## The 6 gates
 
-Define a **5-gate contract** every AI agent must satisfy before declaring a task done, encoded as a reusable skill plus a checklist:
+Every AI agent following this protocol must pass all six gates before declaring a task done:
 
-| Gate | Question | Mechanic |
-|------|----------|----------|
-| **1. Spec gate** | Is the task written down as acceptance criteria, not vibes? | `task.md` template with Given/When/Then |
-| **2. Scope gate** | Is the diff bounded — no unrequested additions? | Automated `git diff --stat` review + forbidden-pattern list |
-| **3. Verify gate** | Did the agent actually RUN its code and observe pass? | Mandatory `pytest` / `npm test` / `go test` exit code 0 |
-| **4. Context gate** | Did the agent check its assumptions about the existing code? | Mandatory file-read evidence in the PR/commit message |
-| **5. Done gate** | Is there a checklist proving all 4 passed? | `.ai-sdlc/DONE.md` required in every task |
+| # | Gate | Question |
+|---|------|----------|
+| 1 | **Spec** | Is the task written as Given/When/Then acceptance criteria? |
+| 2 | **Scope** | Is the diff bounded — no unrequested additions? |
+| 3 | **Verify** | Did the agent actually RUN its code and observe pass? |
+| 4 | **Context** | Did the agent check its assumptions about existing code? |
+| 5 | **Done** | Is every other gate's evidence present? |
+| 6 | **Recover** | Can the agent undo its last change without manual intervention? |
 
-Fail any gate → "not done." Pass all 5 → ship.
+Fail any gate → "not done." Pass all 6 → ship.
 
-## Repo shape (planned)
+## Repo shape
 
 ```
 ai-sdlc/
-├── PROTOCOL.md          # The 5-gate spec — human-first, normative
-├── SKILL.md             # Hermes/OpenCode/Claude-Code skill (the consumer)
+├── PROTOCOL.md             # The 6-gate spec — human-first, normative
+├── SKILL.md                # Hermes skill (v0.1)
 ├── templates/
-│   ├── task.md          # Acceptance-criteria template
-│   ├── DONE.md          # Gate checklist template
+│   ├── task.md             # Acceptance-criteria template
+│   ├── DONE.md             # 6-gate checklist template
 │   └── pr-description.md
 ├── examples/
-│   ├── python/          # Worked example: add FastAPI endpoint
-│   ├── php/             # Worked example: fix Symfony bug
-│   └── node/            # Worked example: refactor React component
-├── docs/
-│   ├── ceo-plan.md      # This document
-│   ├── failure-modes.md # Catalog of "why AI failed" with gate that catches each
-│   └── adoption.md      # How to install in your agent harness
-├── CONTRIBUTING.md      # How to propose a gate / change a gate
-└── LICENSE              # MIT
+│   ├── python/             # Synthetic FastAPI endpoint
+│   ├── php/                # Synthetic Symfony controller
+│   └── node/               # Synthetic React refactor
+├── tests/
+│   └── test_python_example.py
+├── CONTRIBUTING.md
+├── LICENSE                 # MIT
+├── install.sh              # SHA-printed cp to ~/.hermes/skills/
+└── README.md
 ```
 
-Total surface: ~8 files, ~1500 lines of markdown. No code dependencies.
-
----
-
-## Why now
-
-- AI agent adoption is in the messy middle: 2026 models are 80-90% first-try-correct, but the last 10-20% requires structural verification, not better prompting.
-- The user pain is **not** "AI is bad" — it's "AI is good enough that I stop checking, then it bites me on long tasks."
-- A protocol is the wedge: small enough to ship in a week, opinionated enough to be useful, open enough to attract contributors.
+12 files, ~885 lines. 3-5 day build.
 
 ## Why a protocol, not a tool
 
-Three shapes were considered; the protocol wins on cost-to-launch and collaborator-friendliness. See `docs/ceo-plan.md` for the full comparison.
+A protocol is forkable, opinionated, and lets anyone participate without adopting a vendor. That matches the goal: a public GitHub repo for collaboration.
 
----
+## Status
 
-## Quickstart (planned, after dogfood)
-
-```bash
-# In any agent harness that loads SKILL.md:
-cp SKILL.md ~/.hermes/skills/ai-sdlc/SKILL.md
-# Then on any task:
-#   1. Agent reads task.md template, fills it in
-#   2. Agent works
-#   3. Agent must pass all 5 gates
-#   4. Agent produces DONE.md or admits failure
-```
+This repo is **pre-dogfood**. See `docs/ceo-plan.md` for the full plan, the 5-task dogfood protocol, and the public-push checklist.
 
 ## License
 
-MIT — explicit permission to fork, modify, redistribute. See `LICENSE`.
-
-## Contributing
-
-See `CONTRIBUTING.md`. Gate changes require 2 approvals + a worked example.
+MIT — see `LICENSE`.
