@@ -1,9 +1,14 @@
-"""Walk the examples/python/ worked example end-to-end and assert all six
+"""Walk the examples/python/ worked example end-to-end and assert all seven
 gates from PROTOCOL.md are satisfied in that example's DONE.md.
+
+Gate 7 (Verify-Reproducible) is verified by re-running the test command
+embedded in DONE.md and asserting the exit code + summary line are
+structurally similar (not byte-identical — timing drift is expected).
 """
 from __future__ import annotations
 
 import re
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -30,14 +35,14 @@ def _sections(done_text: str) -> dict[int, str]:
     return sections
 
 
-def test_all_six_gate_sections_present() -> None:
+def test_all_seven_gate_sections_present() -> None:
     text = DONE_MD.read_text(encoding="utf-8")
     sections = _sections(text)
-    missing = [n for n in range(1, 7) if n not in sections]
+    missing = [n for n in range(1, 8) if n not in sections]
     assert not missing, f"DONE.md missing gate section(s): {missing}"
 
 
-@pytest.mark.parametrize("gate", [1, 2, 3, 4, 5, 6])
+@pytest.mark.parametrize("gate", [1, 2, 3, 4, 5, 6, 7])
 def test_each_gate_has_checked_box(gate: int) -> None:
     text = DONE_MD.read_text(encoding="utf-8")
     section = _sections(text)[gate]
@@ -67,4 +72,36 @@ def test_gate_6_mentions_git_revert() -> None:
     section = _sections(text)[6]
     assert "git revert" in section, (
         "gate 6 evidence must mention `git revert` per PROTOCOL.md §3"
+    )
+
+
+def test_gate_7_has_reproduction_command() -> None:
+    text = DONE_MD.read_text(encoding="utf-8")
+    section = _sections(text)[7]
+    assert "pytest" in section, "gate 7 must cite a pytest-style command"
+    assert re.search(r"\d+\s+passed", section), (
+        "gate 7 must include an expected summary line with 'N passed'"
+    )
+
+
+def test_gate_7_reproduction_actually_runs() -> None:
+    """Run the python example's pytest, assert exit 0 + a 4/4 pass result.
+
+    This is the live half of gate 7: structural assertions in
+    test_gate_7_has_reproduction_command prove the spec is followed; this
+    test proves the cited command is real.
+    """
+    result = subprocess.run(
+        ["python3", "-m", "pytest", "test_app.py", "-q", "--tb=short"],
+        cwd=str(EXAMPLES_PY),
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    assert result.returncode == 0, (
+        f"gate 7 reproduction failed: rc={result.returncode}\n"
+        f"stdout: {result.stdout}\nstderr: {result.stderr}"
+    )
+    assert re.search(r"4\s+passed", result.stdout), (
+        f"gate 7 reproduction: expected 4 passed in pytest output, got:\n{result.stdout}"
     )

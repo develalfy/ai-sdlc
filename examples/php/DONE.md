@@ -48,7 +48,7 @@
     WRONG: blank lines count, so the controller landed at exactly 50 LOC and the test at 25 LOC after one round of trimming. Confirmed by `wc -l`.
 
 ## Gate 5 — Done
-- [x] This file exists and all five prior gate boxes are ticked with real evidence (paths, command, exit code, summary, file list, assumption status).
+- [x] This file exists and all six prior gate boxes are ticked with real evidence (paths, command, exit code, summary, file list, assumption status).
 
 ## Gate 6 — Recover
 - [x] Smoke-tested against commit `923d7c4`:
@@ -56,3 +56,9 @@
   - `git status --short` during the staged revert listed all five example files queued for deletion (D  .gitignore, D  DONE.md, D  src/Controller/HealthController.php, D  task.md, D  tests/Controller/HealthControllerTest.php).
   - `git revert --abort` exited 0; working tree restored cleanly.
 - [x] No conflict. The example is reversible in one command without manual resolution.
+
+## Gate 7 — Verify-Reproducible
+- [x] Command (copy-pasteable): `cd /home/develalfy/projects/ai-sdlc/examples/php && php tests/Controller/HealthControllerTest.php; echo "EXIT=$?"`
+- [x] Expected summary: `4/4 assertions passed.` then `EXIT=0`.
+- [x] Prerequisites: PHP 8.4+ (built-in `assert()`); no composer, no PHPUnit, no vendor tree required.
+- [x] Reproduction verified at DONE.md write time: re-ran the command above, observed the expected `4/4 assertions passed.` summary with `EXIT=0`. Same exit code, same assertion count, same output shape.

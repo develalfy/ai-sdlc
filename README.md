@@ -21,9 +21,9 @@ A small, opinionated **protocol** that an AI coding agent must follow end-to-end
 - Not a SaaS / hosted product.
 - Not a research paper.
 
-## The 6 gates
+## The 7 gates
 
-Every AI agent following this protocol must pass all six gates before declaring a task done:
+Every AI agent following this protocol must pass all seven gates before declaring a task done:
 
 | # | Gate | Question |
 |---|------|----------|
@@ -33,18 +33,19 @@ Every AI agent following this protocol must pass all six gates before declaring 
 | 4 | **Context** | Did the agent check its assumptions about existing code? |
 | 5 | **Done** | Is every other gate's evidence present? |
 | 6 | **Recover** | Can the agent undo its last change without manual intervention? |
+| 7 | **Verify-Reproducible** | Is gate-3 evidence reproducible from the repo? CI or reviewer re-runs and matches. |
 
-Fail any gate → "not done." Pass all 6 → ship.
+Fail any gate → "not done." Pass all 7 → ship.
 
 ## Repo shape
 
 ```
 ai-sdlc/
-├── PROTOCOL.md             # The 6-gate spec — human-first, normative
+├── PROTOCOL.md             # The 7-gate spec — human-first, normative
 ├── SKILL.md                # Hermes skill (v0.1)
 ├── templates/
 │   ├── task.md             # Acceptance-criteria template
-│   ├── DONE.md             # 6-gate checklist template
+│   ├── DONE.md             # 7-gate checklist template
 │   └── pr-description.md
 ├── examples/
 │   ├── python/             # Synthetic FastAPI endpoint

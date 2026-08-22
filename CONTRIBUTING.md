@@ -31,7 +31,7 @@ gate change requires:
 1. **Two approvals** from the contributor set (two distinct maintainers or
    recognized contributors approving the PR).
 2. **A worked example** that exercises the proposed change end-to-end. The
-   example MUST pass all six gates with the new wording, and its `DONE.md`
+   example MUST pass all seven gates with the new wording, and its `DONE.md`
    MUST be the strongest evidence in the PR thread.
 
 Without both, the PR is closed regardless of diff quality. Gate changes
@@ -46,7 +46,7 @@ templates in v0.2 once the contributor set is established.
 - `bug` — protocol wording or template that contradicts itself.
 - `enhancement` — wording improvement, new failure-mode catalog entry, new
   example.
-- `gate-N-needed` — a real task that the current six gates cannot cleanly
+- `gate-N-needed` — a real task that the current seven gates cannot cleanly
   cover (e.g. non-git recovery for v0.2). Include the scenario.
 - `good first issue` — small, well-scoped, no gate-change implications.
 

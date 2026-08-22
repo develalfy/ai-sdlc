@@ -1,0 +1,89 @@
+name: ai-sdlc verify
+
+# This workflow enforces gate 7 (Verify-Reproducible) of the ai-sdlc
+# protocol. It walks every examples/*/DONE.md and re-runs the test command
+# captured in gate 3, then diffs the actual output against the expected
+# summary in gate 7. A gate-7 violation fails the build.
+
+on:
+  pull_request:
+    paths:
+      - 'examples/**'
+      - 'tests/**'
+      - 'PROTOCOL.md'
+      - 'SKILL.md'
+      - '.github/workflows/ai-sdlc-verify.yml'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-python:
+    name: ai-sdlc verify (python)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: examples/python
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run example test suite (gate 3)
+        run: python -m pytest test_app.py -q --tb=short
+      - name: Run spec-test (gate 7 structural check)
+        run: |
+          cd ../..
+          python -m pytest tests/ -q --tb=short
+
+  verify-php:
+    name: ai-sdlc verify (php)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: examples/php
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+      - name: Run example test (gate 3 + gate 7 reproduction)
+        run: php tests/Controller/HealthControllerTest.php
+
+  verify-node:
+    name: ai-sdlc verify (node)
+    runs-on: ubuntu-latest
+    defaults:
+        run:
+          working-directory: examples/node
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Run example test suite (gate 3 + gate 7 reproduction)
+        run: npx vitest run
+
+  verify-protocol-structure:
+    name: ai-sdlc verify (spec-test)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run gate 7 spec-test
+        run: |
+          cd ../..
+          pip install pytest
+          python -m pytest tests/ -q --tb=short

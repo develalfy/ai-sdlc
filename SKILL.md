@@ -17,7 +17,7 @@ or has a real chance of breaking something.
 Skip it only for one-line typo fixes, formatting-only changes, or pure
 research.
 
-## The six gates (cheat sheet)
+## The seven gates (cheat sheet)
 
 | # | Gate | Single-line rule |
 |---|------|------------------|
@@ -25,11 +25,12 @@ research.
 | 2 | Scope | ≤50 LOC per file, no new top-level dirs; update task.md if scope grows. |
 | 3 | Verify | Run the project's test suite; capture exit code + summary in DONE.md. |
 | 4 | Context | List every file you read and the assumption you confirmed/disproved. |
-| 5 | Done | DONE.md exists, all five prior gates ticked. |
+| 5 | Done | DONE.md exists, all six prior gates ticked. |
 | 6 | Recover | `git revert HEAD` succeeds without conflict. |
+| 7 | Verify-Reproducible | Exact command + expected summary in DONE.md; CI or reviewer re-runs and structurally matches. |
 
 A gate is **failed** if its evidence is missing or contradicted. The task is
-**not done** until all six pass.
+**not done** until all seven pass.
 
 ## Workflow
 
@@ -69,7 +70,7 @@ claiming done.
 For harnesses that grep stdout:
 
 ```bash
-echo "STATUS: PASS"            # all six gates ticked
+echo "STATUS: PASS"            # all seven gates ticked
 echo "STATUS: FAIL gate-3"     # gate 3 (Verify) failed
 ```
 
@@ -78,7 +79,7 @@ Status line is a shortcut, not a substitute. DONE.md is the source of truth.
 ## Templates
 
 - `templates/task.md` — acceptance-criteria template
-- `templates/DONE.md` — 6-gate checklist template
+- `templates/DONE.md` — 7-gate checklist template
 - `templates/pr-description.md` — PR body template
 
 Copy from the ai-sdlc repo:
@@ -111,6 +112,7 @@ likely reason.
 | 3 (Verify) | Agent emitted plausible-looking code without running tests. |
 | 4 (Context) | Agent assumed an API/version/library that didn't exist. |
 | 6 (Recover) | Agent left the repo in a state where its last change can't be cleanly undone. |
+| 7 (Verify-Reproducible) | Agent pasted test output that doesn't reproduce from the cited command. |
 
 ## Anti-patterns
 

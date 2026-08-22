@@ -60,7 +60,7 @@
     WRONG: it only emits a build warning, not an error. Removed the duplicate key.
 
 ## Gate 5 — Done
-- [x] This file exists and all five prior gate boxes are ticked with real evidence (paths, command, exit code, raw stdout, file list, assumption status).
+- [x] This file exists and all six prior gate boxes are ticked with real evidence (paths, command, exit code, raw stdout, file list, assumption status).
 
 ## Gate 6 — Recover
 - [x] Smoke-tested against commit `7f303e0`:
@@ -68,3 +68,9 @@
   - `git status --short` during the staged revert listed all eight tracked example files queued for deletion (D  .gitignore, DONE.md, package.json, src/Button.test.tsx, src/Button.tsx, task.md, tsconfig.json, vitest.config.ts). node_modules/ and package-lock.json remained untracked (they were correctly ignored by .gitignore and never tracked).
   - `git revert --abort` exited 0; working tree restored cleanly.
 - [x] No conflict. The example is reversible in one command without manual resolution.
+
+## Gate 7 — Verify-Reproducible
+- [x] Command (copy-pasteable): `cd /home/develalfy/projects/ai-sdlc/examples/node && npx vitest run`
+- [x] Expected summary: `Test Files 1 passed (1) | Tests 4 passed (4)` (duration varies; timing noise is expected and accepted per PROTOCOL.md §3 gate 7).
+- [x] Prerequisites: Node 18+, `npm install` first to populate node_modules/ from package.json (vitest 2.x, jsdom, @testing-library/react 16, react 18).
+- [x] Reproduction verified at DONE.md write time: re-ran `npx vitest run` after the dependency install; observed `Test Files 1 passed (1) | Tests 4 passed (4)`. Same test count, same pass/fail outcome, same exit code 0.

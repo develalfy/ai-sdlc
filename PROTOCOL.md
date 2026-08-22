@@ -17,7 +17,7 @@ This protocol defines what an AI coding agent **must** do — and what it
 - A team, an open-source community, or a solo founder can apply the same gate
   set across languages and harnesses.
 
-The protocol is normative on **six gates** (§3). Anything outside §3 is
+The protocol is normative on **seven gates** (§3). Anything outside §3 is
 convention, not requirement.
 
 ---
@@ -31,14 +31,15 @@ convention, not requirement.
 | **Verify artifact** | The test-run output captured in `DONE.md` as gate-3 evidence. |
 | **Implementer** | Any person or agent building against this protocol. |
 | **Contributor** | Someone filing a PR to an ai-sdlc repo (subset of implementer). |
-| **DONE.md** | The 6-gate checklist the agent fills in at task completion. |
+| **DONE.md** | The 7-gate checklist the agent fills in at task completion. |
 | **Recover** | Gate 6: ability to undo the agent's last change without manual intervention. |
+| **Verify-Reproducible** | Gate 7: gate-3 evidence is reproducible from the repo by a reviewer or CI. |
 
 ---
 
-## 3. The six gates (normative)
+## 3. The seven gates (normative)
 
-An agent MUST satisfy **all six** before declaring a task done. A gate is
+An agent MUST satisfy **all seven** before declaring a task done. A gate is
 satisfied only when its evidence appears in `DONE.md`.
 
 ### Gate 1 — Spec
@@ -100,8 +101,8 @@ plausible-sounding but incorrect mental model of the existing code.
 
 ### Gate 5 — Done
 
-DONE.md itself exists, lists all six gates with their evidence, and every
-gate 1–4 has its `[ ]` replaced with `[x]`.
+DONE.md itself exists, lists all seven gates with their evidence, and every
+gate 1–6 has its `[ ]` replaced with `[x]`.
 
 If gate 5's evidence is missing, no other gate counts as passed.
 
@@ -114,6 +115,33 @@ In git-tracked work: `git revert HEAD` succeeds without conflict.
 Non-git flows are explicitly v0.2 scope. A protocol-compliant agent MUST
 either work in a git-tracked tree or surface the recovery limitation
 explicitly in DONE.md before claiming gate 6.
+
+### Gate 7 — Verify-Reproducible
+
+The test evidence in gate 3 MUST be reproducible from the artifacts in this
+repository. A reviewer (or CI) MUST be able to re-run the cited command from
+a clean clone and observe a matching exit code and a structurally similar
+summary line.
+
+Evidence required in DONE.md (in addition to gate 3):
+- The exact command string, copy-pasteable.
+- The expected summary line (e.g. `4 passed in 0.82s`), including the trailing
+  timestamp if the runner prints one.
+- Any environment prerequisites (Python version, Node version, PHP version,
+  system packages, env vars) needed to reproduce.
+
+If a CI workflow exists (`.github/workflows/ai-sdlc-verify.yml`), a green run
+on the PR satisfies gate 7 automatically. If no CI exists, the reviewer is
+expected to re-run the command locally before approving.
+
+The protocol does NOT require byte-identical reproduction — it requires
+"structurally similar" output: same exit code, same test count, same pass/fail
+counts. Timing drift is normal and expected. A diff in test count or a
+mismatched exit code is a gate-7 failure.
+
+This gate exists to close the anti-fabrication gap: gate 3 says "paste
+evidence"; gate 7 says "evidence must be reproducible." Without gate 7, an
+agent can paste plausible-looking output without it being true.
 
 ---
 
@@ -146,10 +174,16 @@ Required sections:
   - src/db/conn.py — WRONG: assumed asyncpg, actual is psycopg2 sync
 
 ## Gate 5 — Done
-- [x] This file exists and all five prior gate boxes are ticked
+- [x] This file exists and all six prior gate boxes are ticked
 
 ## Gate 6 — Recover
 - [x] git revert HEAD succeeded in dry-run; last commit: 7a3f1c2
+
+## Gate 7 — Verify-Reproducible
+- [x] Command (copy-pasteable): `pytest tests/ -q`
+- [x] Expected summary: `12 passed, 0 failed in 1.4s`
+- [x] Prerequisites: Python 3.11+, `pip install -r requirements.txt`
+- [x] CI run (if applicable): `.github/workflows/ai-sdlc-verify.yml` — green on PR #N
 ```
 
 A gate is **failed** if its checkbox is `[ ]` or if the evidence is missing,
@@ -172,7 +206,7 @@ or
 STATUS: FAIL gate-N
 ```
 
-Where `N` is `1`–`6`.
+Where `N` is `1`–`7`.
 
 **This is a screening shortcut, NOT a substitute for DONE.md evidence.**
 Gate 5's whole point is that DONE.md is the final arbiter. A stdout `STATUS:
