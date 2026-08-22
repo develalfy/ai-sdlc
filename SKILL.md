@@ -25,7 +25,7 @@ research.
 | 2 | Scope | ≤50 LOC per file, no new top-level dirs; update task.md if scope grows. |
 | 3 | Verify | Run the project's test suite; capture exit code + summary in DONE.md. |
 | 4 | Context | List every file you read and the assumption you confirmed/disproved. |
-| 5 | Done | DONE.md exists, all four above boxes ticked. |
+| 5 | Done | DONE.md exists, all five prior gates ticked. |
 | 6 | Recover | `git revert HEAD` succeeds without conflict. |
 
 A gate is **failed** if its evidence is missing or contradicted. The task is

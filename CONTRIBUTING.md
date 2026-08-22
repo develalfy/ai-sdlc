@@ -39,7 +39,9 @@ without an example are rejected outright — proposals, not patches.
 
 ## Filing an issue
 
-Use the templates under `.github/ISSUE_TEMPLATE/` when present. Labels:
+A formal GitHub issue template directory (`/.github/ISSUE_TEMPLATE/`) is
+**not** shipped in v0.1. Use the labels below in the issue title; we'll add
+templates in v0.2 once the contributor set is established.
 
 - `bug` — protocol wording or template that contradicts itself.
 - `enhancement` — wording improvement, new failure-mode catalog entry, new

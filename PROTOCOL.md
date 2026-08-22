@@ -146,7 +146,7 @@ Required sections:
   - src/db/conn.py — WRONG: assumed asyncpg, actual is psycopg2 sync
 
 ## Gate 5 — Done
-- [x] This file exists and all four boxes above are ticked
+- [x] This file exists and all five prior gate boxes are ticked
 
 ## Gate 6 — Recover
 - [x] git revert HEAD succeeded in dry-run; last commit: 7a3f1c2

@@ -19,7 +19,7 @@
   - <path> — WRONG: <assumption that turned out false>
 
 ## Gate 5 — Done
-- [ ] This file exists and all four boxes above are ticked
+- [ ] This file exists and all five prior gate boxes are ticked
 
 ## Gate 6 — Recover
 - [ ] git revert HEAD succeeded in dry-run; last commit: <sha>

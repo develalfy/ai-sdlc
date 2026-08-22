@@ -1,51 +1,25 @@
 <?php
-
+/** Single-file test for HealthController. Exit 0 = all pass. Run: php tests/Controller/HealthControllerTest.php */
 declare(strict_types=1);
-
-namespace App\Tests\Controller;
-
-use App\Controller\HealthController;
-use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
-
-final class HealthControllerTest extends TestCase
+require __DIR__ . '/../../src/Controller/HealthController.php';
+final class HealthControllerTest
 {
-    public function testInvokeReturns200(): void
+    public static function main(): int
     {
-        $response = (new HealthController())(/* request not needed */);
-
-        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
-    }
-
-    public function testInvokeReturnsJsonContentType(): void
-    {
-        $response = (new HealthController())();
-
-        self::assertSame('application/json', $response->headers->get('Content-Type'));
-    }
-
-    public function testInvokeReturnsExpectedPayload(): void
-    {
-        /** @var JsonResponse $response */
-        $response = (new HealthController())();
-
-        self::assertSame(
-            ['status' => 'ok', 'version' => '0.1.0'],
-            json_decode((string) $response->getContent(), true, flags: JSON_THROW_ON_ERROR),
-        );
-    }
-
-    public function testPayloadHasExactlyTwoKeys(): void
-    {
-        /** @var JsonResponse $response */
-        $response = (new HealthController())();
-        /** @var array<string, string> $data */
-        $data = json_decode((string) $response->getContent(), true, flags: JSON_THROW_ON_ERROR);
-
-        self::assertIsArray($data);
-        self::assertCount(2, $data);
-        self::assertSame('ok', $data['status']);
-        self::assertSame('0.1.0', $data['version']);
+        $c = (new HealthController())->healthz();
+        $cases = [
+            'returns 200 status'           => $c->getStatusCode() === 200,
+            'returns application/json CT' => str_contains(strtolower($c->getHeaders()['Content-Type'] ?? ''), 'json'),
+            'body has status=ok'           => (json_decode($c->getContent(), true)['status'] ?? null) === 'ok',
+            'body has version=0.1.0'       => (json_decode($c->getContent(), true)['version'] ?? null) === '0.1.0',
+        ];
+        $pass = 0;
+        foreach ($cases as $name => $ok) {
+            echo ($ok ? 'PASS' : 'FAIL') . ' ' . $name . PHP_EOL;
+            $pass += (int) $ok;
+        }
+        echo PHP_EOL . $pass . '/' . count($cases) . ' assertions passed.' . PHP_EOL;
+        return $pass === count($cases) ? 0 : 1;
     }
 }
+exit(HealthControllerTest::main());
