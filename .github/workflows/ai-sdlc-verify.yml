@@ -82,4 +82,5 @@ jobs:
       - name: Run gate 7 spec-test
         run: |
           pip install pytest
+          pip install -r examples/python/requirements.txt
           python -m pytest tests/ -q --tb=short
