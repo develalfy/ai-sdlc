@@ -4,8 +4,8 @@ mode: SELECTIVE EXPANSION
 approach: B
 gates: 6
 repo: github.com/elalfy/ai-sdlc
-review_score: 4/10 (round 1)
-review_iter: 1
+review_score: 8/10 (round 2)
+review_iter: 3
 ---
 # CEO Plan: ai-sdlc — Open Protocol for AI-Assisted Software Tasks
 
@@ -33,7 +33,7 @@ Every AI agent following this protocol must pass **all six** gates before declar
 | 3 | **Verify** | Did the agent actually RUN its code and observe pass? | Mandatory `pytest` / `phpunit` / `npm test` / `go test` exit code 0, captured in DONE.md |
 | 4 | **Context** | Did the agent check its assumptions about existing code? | List every file read + the assumption it confirmed/disproved, in DONE.md |
 | 5 | **Done** | Is every other gate's evidence present? | All four checkboxes above must be ticked in DONE.md |
-| 6 | **Recover** | Can the agent undo its last change without manual intervention? | `git revert HEAD` (or harness-equivalent) succeeds; if mid-task breakage, agent reverts before continuing |
+| 6 | **Recover** | Can the agent undo its last change without manual intervention? | In git-tracked work: `git revert HEAD` succeeds without conflict; non-git flows are explicitly v0.2 scope |
 
 **Gate 6 (Recover) is non-negotiable in v0.1.** The founder's actual lived pain is "half-finished chunks" — that pain is *specifically* the failure of gate 6. A protocol without gate 6 doesn't solve the founder's problem.
 
@@ -81,7 +81,7 @@ Three re-framings were considered:
 | 8 | `examples/node/` (synthetic React refactor) | ~100 | Synthetic |
 | 9 | `CONTRIBUTING.md` | ~50 | Includes 6-gate "must contain" checklist for PROTOCOL.md changes |
 | 10 | `LICENSE` (MIT) | standard | MIT |
-| 11 | `install.sh` (SHA-pinned `cp` to `~/.hermes/skills/`, not curl-pipe-bash) | ~25 | Reviewer flagged curl-pipe-bash as security surface |
+| 11 | `install.sh` (SHA-pins `SKILL.md` bytes against the value published in PROTOCOL.md; refuses to install on mismatch — `cp`, not curl-pipe-bash) | ~25 | Reviewer flagged curl-pipe-bash as security surface; SHA pins the bytes being installed |
 | 12 | `tests/test_python_example.py` (asserts all 6 gates pass on the Python example) | ~60 | Closes Temporal Interrogation item |
 
 **Total: 12 files, ~885 lines.** 3-5 day estimate holds.
@@ -110,7 +110,7 @@ What an implementer (fresh agent loading this plan + future PROTOCOL.md) will hi
 |------|---------------------|------------|
 | 1 | What are the 6 gates? | §The 6 gates above. |
 | 2-3 | How strict is "scope" gate? | Loose: ≤50 changed lines per existing file, no new top-level dirs, no new files except under `src/<new-module>/` with a 1-line justification in DONE.md. |
-| 4-5 | How does the agent signal pass/fail? | Canonical: DONE.md is the source of truth. Each gate has `[x]` or `[ ]`. The skill emits `STATUS: PASS` or `STATUS: FAIL gate-N` to stdout for harnesses that don't read DONE.md. |
+| 4-5 | How does the agent signal pass/fail? | DONE.md is the source of truth — each gate has `[x]` or `[ ]`. The skill may *also* emit `STATUS: PASS` / `STATUS: FAIL gate-N` to stdout **for fast pre-DONE.md screening only — NOT a substitute.** DONE.md evidence is what gate 5 actually checks. |
 | 6+ | What tests ship with v0.1? | `tests/test_python_example.py` runs the Python example end-to-end and asserts all 6 gates. |
 
 **Daily 10-min journal:** while dogfooding, write `dogfood/YYYY-MM-DD.md` with: (a) which gate I most wanted to skip today, (b) which gate actually caught a bug, (c) free-form. After 5 tasks, write `dogfood/SUMMARY.md` listing gate effectiveness.
@@ -120,7 +120,7 @@ What an implementer (fresh agent loading this plan + future PROTOCOL.md) will hi
 ## Abort criteria for public push
 
 Public push happens only if **all three** of the following are true:
-1. **5 tasks** completed across at least 2 of {Qalam, Calora, Specboard} using the protocol.
+1. **5 tasks** completed across at least 2 of the founder's active projects (likely {Qalam, Calora, Specboard}, or whichever are active). Each task must be **<4 hours agent wall-clock AND <500 LOC diff** — without this bound, one fat task trivially satisfies the count.
 2. At least one gate caught a real bug the founder would have shipped without it.
 3. `dogfood/SUMMARY.md` says the protocol took less than 30% extra time vs no-protocol baseline.
 
@@ -175,7 +175,11 @@ If any of the three fails, dogfood continues for another 5 tasks before re-evalu
 
 ---
 
-## Reviewer Concerns (round 1)
+**Mirror:** this file is mirrored to `~/.gstack/projects/ai-sdlc/ceo-plans/2026-08-22-ai-sdlc.md` for the gstack spec-review loop. The `~/.gstack/` copy is internal-only; do not edit it directly — always edit the source in `docs/` and re-mirror.
+
+---
+
+## Reviewer Concerns (round 2)
 
 The plan has 40 issues identified in adversarial review (score 4/10). All material issues are addressed in this revision by:
 
@@ -187,4 +191,6 @@ The plan has 40 issues identified in adversarial review (score 4/10). All materi
 - Removing process-leakage (Platonic Ideal, Delight Opportunities ceremony, Dream State Mapping fluff).
 - Adding delegation note so the founder knows what they must do vs what subagents can own.
 
-**Round 2 review pending** (max 3 rounds per gstack spec-review loop).
+**Round 2 review complete** (score 8/10): 7 polish issues found, all addressed in this revision.
+
+**Public readers:** ignore the "Reviewer Concerns" section below — it's internal review history. If you're reading this on GitHub and the round number is >3, the plan is stable; refer to `PROTOCOL.md` and `SKILL.md` for the actual spec.
