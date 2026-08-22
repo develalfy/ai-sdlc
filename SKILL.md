@@ -52,6 +52,8 @@ Copy `templates/DONE.md` and tick each gate's box only when its evidence is
 real. The template forces you to be specific — paste the test summary, list
 the files you read, paste the commit hash.
 
+`DONE.md` lives next to `task.md` in the project root.
+
 ### Step 4 — Verify gate 6
 
 ```bash

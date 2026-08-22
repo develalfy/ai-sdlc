@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# TODO(v0.2): Re-enable SHA pinning before the public v0.2 release.
+#   1. Set EXPECTED_SHA256 below to the SHA of the published SKILL.md.
+#   2. Verify the mismatch guard at lines 29-32 (currently inside the empty-string
+#      short-circuit) actually fires when the SHA differs.
 # Install ai-sdlc SKILL.md into ~/.hermes/skills/ai-sdlc/.
 # Local script: run after `git clone`. No network, no curl-pipe-bash.
 #

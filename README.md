@@ -58,7 +58,7 @@ ai-sdlc/
 └── README.md
 ```
 
-12 files, ~885 lines. 3-5 day build.
+30 tracked files. ~1.1k protocol LOC, ~2.9k example LOC (incl. node_modules when installed).
 
 ## Why a protocol, not a tool
 
