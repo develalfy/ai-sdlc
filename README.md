@@ -1,74 +1,179 @@
 # ai-sdlc — A Collaboration Protocol for AI-Assisted Software Tasks
 
-**Status:** Local-only draft, not yet public.
-**Repo target:** `github.com/elalfy/ai-sdlc` (planned, not yet pushed)
+**Status:** v0.1 public at [github.com/develalfy/ai-sdlc](https://github.com/develalfy/ai-sdlc) — dogfood phase (4-week kill-switch running).
 **License:** MIT
+**Audience:** Anyone using an AI coding agent (Claude Code, OpenCode, Aider, Devin, Hermes, etc.) and tired of chunked, half-finished output.
 
 ---
 
-## What this is
+## The problem
 
-A small, opinionated **protocol** that an AI coding agent must follow end-to-end on a software task, plus a reference skill that implements it. It exists because:
+AI coding agents ship code that:
+- Misses the real requirement (invented it instead of asking)
+- Touches files you didn't ask for (scope creep)
+- Claims success without ever running it
+- Breaks something that already worked (didn't read existing code)
+- Can't be reverted cleanly (no git discipline)
+- "Works on my machine" — can't be reproduced from the repo
 
-1. AI output on non-trivial tasks is **chunked, half-finished, and unverified**.
-2. Existing agent harnesses (`claude-code`, `opencode`, `aider`, `devin`) lack a **collaboration-grade** contract — anyone can fork, but no shared standard exists for "what done means."
-3. A public protocol attracts contributors; a SaaS attracts customers. This is a protocol.
+These are not model-quality problems. They're **process problems** the agent doesn't enforce because no one defined "done."
 
-## What this is NOT
+## What ai-sdlc is
 
-- Not a new agent harness.
-- Not a replacement for `claude-code` / `opencode` / `aider`.
-- Not a SaaS / hosted product.
-- Not a research paper.
+A small protocol that defines what "done" means for an AI coding task: **7 gates** every agent must pass before claiming success. Plus a reference skill (`SKILL.md`) that implements the protocol for Hermes, and install paths for other agents.
+
+It is not a new agent. It is not a SaaS. It is a **collaboration contract** — forkable, opinionated, vendor-neutral — that any agent can implement and any project can require.
 
 ## The 7 gates
 
-Every AI agent following this protocol must pass all seven gates before declaring a task done:
+| # | Gate | What it forces |
+|---|------|-----------------|
+| 1 | **Spec** | Acceptance criteria written before code (Given/When/Then or equivalent) |
+| 2 | **Scope** | Diff bounded — no "while I was here" additions |
+| 3 | **Verify** | Agent actually ran the code and observed it pass |
+| 4 | **Context** | Agent read existing code and confirmed its assumptions |
+| 5 | **Done** | Every gate's evidence is present in DONE.md |
+| 6 | **Recover** | `git revert HEAD` succeeds without manual fixup |
+| 7 | **Verify-Reproducible** | CI or reviewer re-runs gate-3 evidence from the repo and matches |
 
-| # | Gate | Question |
-|---|------|----------|
-| 1 | **Spec** | Is the task written as Given/When/Then acceptance criteria? |
-| 2 | **Scope** | Is the diff bounded — no unrequested additions? |
-| 3 | **Verify** | Did the agent actually RUN its code and observe pass? |
-| 4 | **Context** | Did the agent check its assumptions about existing code? |
-| 5 | **Done** | Is every other gate's evidence present? |
-| 6 | **Recover** | Can the agent undo its last change without manual intervention? |
-| 7 | **Verify-Reproducible** | Is gate-3 evidence reproducible from the repo? CI or reviewer re-runs and matches. |
+Fail any one → **not done.** Pass all 7 → **ship.**
 
-Fail any gate → "not done." Pass all 7 → ship.
+The full rules live in [`PROTOCOL.md`](./PROTOCOL.md) (210 lines, normative). The cheat-sheet summary lives in [`SKILL.md`](./SKILL.md).
+
+---
+
+## Quick start
+
+### 1. Install the skill (60 seconds)
+
+**Hermes:**
+```bash
+git clone https://github.com/develalfy/ai-sdlc.git ~/projects/ai-sdlc
+cd ~/projects/ai-sdlc
+./install.sh
+```
+Verifies `SKILL.md` SHA, copies to `~/.hermes/skills/ai-sdlc/`. Refuses to install if SHA mismatches.
+
+**Claude Code:**
+```bash
+git clone https://github.com/develalfy/ai-sdlc.git ~/projects/ai-sdlc
+cp ~/projects/ai-sdlc/SKILL.md ~/.claude/skills/ai-sdlc/SKILL.md
+```
+
+**OpenCode:**
+```bash
+git clone https://github.com/develalfy/ai-sdlc.git ~/projects/ai-sdlc
+cp ~/projects/ai-sdlc/SKILL.md ~/.config/opencode/skills/ai-sdlc/SKILL.md
+```
+
+**Other agents:** any harness that loads a SKILL.md from a known directory works the same way. PRs welcome to add more install paths.
+
+### 2. Use it on a task
+
+Give your agent any non-trivial coding task. The agent will:
+
+1. **Load the `ai-sdlc` skill** from its installed location.
+2. **Apply the 7 gates** — write `task.md` (Spec), check diff size (Scope), run tests (Verify), read source (Context), fill `DONE.md` (Done), `git revert HEAD` (Recover), ensure CI/reviewer can re-run (Verify-Reproducible).
+3. **Report when all 7 pass.**
+
+Templates are in `templates/`:
+- [`templates/task.md`](./templates/task.md) — acceptance criteria
+- [`templates/DONE.md`](./templates/DONE.md) — 7-gate evidence checklist
+- [`templates/pr-description.md`](./templates/pr-description.md) — PR body
+
+### 3. Verify it caught a real bug
+
+5 worked examples prove the protocol works on real code:
+
+- [`examples/python/`](./examples/python/) — synthetic FastAPI endpoint
+- [`examples/php/`](./examples/php/) — synthetic Symfony controller
+- [`examples/node/`](./examples/node/) — synthetic React refactor
+
+Each one has a filled `task.md`, working code, tests, and a `DONE.md` showing all 7 gates PASS.
+
+The 5-task dogfood journal in `journal/` shows what bugs the protocol caught in real projects during testing — see [`journal/SUMMARY.md`](./journal/SUMMARY.md).
+
+### 4. Skip it when not needed
+
+The protocol is **only** for non-trivial work. Skip it for:
+- One-line typo fixes
+- Pure formatting changes
+- Pure research / no code change
+- Trivially small tasks (<30 LOC, <30 min)
+- Tasks that are already done by your existing review process
+
+If you can review the diff in under 60 seconds, you don't need ai-sdlc.
+
+---
 
 ## Repo shape
 
 ```
 ai-sdlc/
-├── PROTOCOL.md             # The 7-gate spec — human-first, normative
-├── SKILL.md                # Hermes skill (v0.1)
+├── README.md               # This file
+├── PROTOCOL.md             # Full 7-gate spec (210 lines, normative)
+├── SKILL.md                # Hermes skill implementation (126 lines)
 ├── templates/
-│   ├── task.md             # Acceptance-criteria template
-│   ├── DONE.md             # 7-gate checklist template
+│   ├── task.md             # Acceptance criteria template
+│   ├── DONE.md             # 7-gate evidence checklist
 │   └── pr-description.md
 ├── examples/
-│   ├── python/             # Synthetic FastAPI endpoint
-│   ├── php/                # Synthetic Symfony controller
-│   └── node/               # Synthetic React refactor
+│   ├── python/             # FastAPI endpoint, tests pass
+│   ├── php/                # Symfony controller, tests pass
+│   └── node/               # React refactor, tests pass
 ├── tests/
 │   └── test_python_example.py
-├── CONTRIBUTING.md
+├── docs/
+│   └── ceo-plan.md         # Why this exists, dogfood protocol, kill-switch
+├── journal/                # Real-world dogfood evidence
+│   ├── SUMMARY.md          # 5-task dogfood kill-switch PASS
+│   └── 00N-*.md            # Per-task journal entries (in dogfood repos)
+├── CONTRIBUTING.md         # How to propose gate changes (2-approval rule)
 ├── LICENSE                 # MIT
-├── install.sh              # SHA-printed cp to ~/.hermes/skills/
-└── README.md
+└── install.sh              # SHA-verified skill installer
 ```
 
-30 tracked files. ~1.1k protocol LOC, ~2.9k example LOC (incl. node_modules when installed).
+## FAQ
 
-## Why a protocol, not a tool
+**Q: How is this different from gstack / Superpowers / other agent frameworks?**
+A: ai-sdlc is **stack-agnostic**. It doesn't ship an agent harness, doesn't pick a model, doesn't dictate an IDE. It defines a contract any agent can implement. Install it as a skill in whatever harness you already use.
 
-A protocol is forkable, opinionated, and lets anyone participate without adopting a vendor. That matches the goal: a public GitHub repo for collaboration.
+**Q: Do I run install.sh once or per-task?**
+A: Once per machine. After install, the skill stays in `~/.hermes/skills/ai-sdlc/` (or your agent's equivalent). Update with `git pull` in the cloned repo + re-run install.sh if `SKILL.md` SHA changes.
 
-## Status
+**Q: Does this work with Codex / Cursor / Windsurf / [any agent]?**
+A: Yes, if your agent loads SKILL.md files from a known directory. The protocol is plain markdown — no SDK, no API. PRs welcome for new install paths.
 
-This repo is **pre-dogfood**. See `docs/ceo-plan.md` for the full plan, the 5-task dogfood protocol, and the public-push checklist.
+**Q: Does it slow down small tasks?**
+A: Yes, if you run it on tiny tasks. Don't. Use it on tasks where "did the agent actually run it?" is a question worth asking.
+
+**Q: What's the kill-switch?**
+A: The 4-week clock from 2026-08-23 to 2026-09-20. If the protocol doesn't actually catch real bugs or starts blocking trivial work, it gets killed. See [`docs/ceo-plan.md`](./docs/ceo-plan.md) and [`journal/SUMMARY.md`](./journal/SUMMARY.md) for the dogfood evidence that triggered the clock.
+
+**Q: Can I change the gates?**
+A: Yes — see [`CONTRIBUTING.md`](./CONTRIBUTING.md). Gate changes require 2 approvals and a working dogfood entry showing the new gate catches a real bug.
+
+**Q: Is this an opinionated stack?**
+A: No. The protocol is plain text. The 3 worked examples use Python/FastAPI, PHP/Symfony, Node/React — chosen to show the protocol is language-agnostic. Adapt to your stack.
+
+**Q: Does the agent have to follow all 7 gates?**
+A: Yes — that's the protocol. The exception is gate-6 (Recover), which only applies to git-tracked work. Non-git tasks skip gate-6 with a documented reason in DONE.md.
+
+---
+
+## What ai-sdlc is NOT
+
+- **Not a new agent harness.** Use your existing Claude Code / OpenCode / Aider / Devin / Hermes. This loads as a skill.
+- **Not a SaaS.** No hosted service, no API, no auth. It's a markdown protocol.
+- **Not a model spec.** The protocol works with any LLM. No vendor lock-in.
+- **Not a research paper.** It's a working protocol with working examples and working dogfood.
+
+---
 
 ## License
 
-MIT — see `LICENSE`.
+MIT — see [`LICENSE`](./LICENSE).
+
+## Contributing
+
+See [`CONTRIBUTING.md`](./CONTRIBUTING.md). Gate changes require 2 approvals and a dogfood entry showing the new gate catches a real bug.
