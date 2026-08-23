@@ -38,7 +38,7 @@ It is not a new agent. It is not a SaaS. It is a **collaboration contract** — 
 
 Fail any one → **not done.** Pass all 7 → **ship.**
 
-The full rules live in [`PROTOCOL.md`](./PROTOCOL.md) (210 lines, normative). The cheat-sheet summary lives in [`SKILL.md`](./SKILL.md).
+The full rules live in [`PROTOCOL.md`](./PROTOCOL.md). The cheat-sheet summary lives in [`SKILL.md`](./SKILL.md).
 
 ---
 
@@ -52,7 +52,7 @@ git clone https://github.com/develalfy/ai-sdlc.git ~/projects/ai-sdlc
 cd ~/projects/ai-sdlc
 ./install.sh
 ```
-Verifies `SKILL.md` SHA, copies to `~/.hermes/skills/ai-sdlc/`. Refuses to install if SHA mismatches.
+Computes the SHA of `SKILL.md`, prints it for your records, and copies the file to `~/.hermes/skills/ai-sdlc/`. **v0.1 caveat:** SHA verification is not yet enforced — the script doesn't refuse on mismatch. SHA-pinning ships in v0.2. For now, eyeball the printed hash against the GitHub release tag.
 
 **Claude Code:**
 ```bash
@@ -68,7 +68,14 @@ cp ~/projects/ai-sdlc/SKILL.md ~/.config/opencode/skills/ai-sdlc/SKILL.md
 
 **Other agents:** any harness that loads a SKILL.md from a known directory works the same way. PRs welcome to add more install paths.
 
+**Uninstall:**
+```bash
+rm -rf ~/.hermes/skills/ai-sdlc     # or ~/.claude/skills/ai-sdlc, etc.
+```
+
 ### 2. Use it on a task
+
+Give your agent any non-trivial coding task. The skill is **auto-loaded** by your harness when relevant (Hermes: any task; Claude Code: when the agent detects the trigger phrase "use ai-sdlc" or sees a `task.md`/`DONE.md` in the workspace).
 
 Give your agent any non-trivial coding task. The agent will:
 
@@ -83,7 +90,7 @@ Templates are in `templates/`:
 
 ### 3. Verify it caught a real bug
 
-5 worked examples prove the protocol works on real code:
+3 worked examples prove the protocol works on real code:
 
 - [`examples/python/`](./examples/python/) — synthetic FastAPI endpoint
 - [`examples/php/`](./examples/php/) — synthetic Symfony controller
@@ -91,7 +98,7 @@ Templates are in `templates/`:
 
 Each one has a filled `task.md`, working code, tests, and a `DONE.md` showing all 7 gates PASS.
 
-The 5-task dogfood journal in `journal/` shows what bugs the protocol caught in real projects during testing — see [`journal/SUMMARY.md`](./journal/SUMMARY.md).
+The 5-task **dogfood journal** (real bugs caught in Calora and Specboard during testing) lives in `journal/`. See [`journal/SUMMARY.md`](./journal/SUMMARY.md) for the meta-pattern: every bug caught was found by Gate 4 (Context).
 
 ### 4. Skip it when not needed
 
@@ -111,8 +118,8 @@ If you can review the diff in under 60 seconds, you don't need ai-sdlc.
 ```
 ai-sdlc/
 ├── README.md               # This file
-├── PROTOCOL.md             # Full 7-gate spec (210 lines, normative)
-├── SKILL.md                # Hermes skill implementation (126 lines)
+├── PROTOCOL.md             # Full 7-gate spec (normative)
+├── SKILL.md                # Hermes skill implementation
 ├── templates/
 │   ├── task.md             # Acceptance criteria template
 │   ├── DONE.md             # 7-gate evidence checklist
