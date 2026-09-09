@@ -46,11 +46,11 @@
 ## Gate 4 — Context
 - [x] Files read while working on this task:
   - /home/develalfy/projects/ai-sdlc/PROTOCOL.md
-    — confirmed: six gates, DONE.md evidence rules, gate 6 git-revert recipe.
+    — confirmed: seven gates (§3), DONE.md evidence rules, gate 6 git-revert recipe, gate 7 reproduction requirement.
   - /home/develalfy/projects/ai-sdlc/SKILL.md
     — confirmed: Hermes consumer side; templates live under templates/.
   - /home/develalfy/projects/ai-sdlc/templates/DONE.md
-    — confirmed: the six gate sections and `[x]` evidence pattern.
+    — confirmed: the seven gate sections and `[x]` evidence pattern (gate 5 lists all seven).
   - /home/develalfy/projects/ai-sdlc/examples/python/DONE.md
     — confirmed: format for capturing exit code + raw stdout + summary in gate 3.
 - [x] Assumptions tested:

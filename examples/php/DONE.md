@@ -36,7 +36,7 @@
 ## Gate 4 — Context
 - [x] Files read while working on this task:
   - /home/develalfy/projects/ai-sdlc/PROTOCOL.md
-    — confirmed: six gates; DONE.md is the source of truth; gate 6 is `git revert HEAD` without conflict.
+    — confirmed: seven gates (§3); DONE.md is the source of truth; gate 6 is `git revert HEAD` without conflict; gate 7 is the CI/reviewer re-run check.
   - /home/develalfy/projects/ai-sdlc/SKILL.md
     — confirmed: workflow (write task.md → do work → fill DONE.md → smoke-test `git revert HEAD --no-commit` then abort).
   - /home/develalfy/projects/ai-sdlc/examples/python/ (directory listing)
