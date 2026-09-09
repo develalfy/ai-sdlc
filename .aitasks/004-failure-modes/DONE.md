@@ -31,7 +31,7 @@
 
 ## Gate 6 — Recover
 - [x] `git revert HEAD --no-commit` dry-run: no conflict expected (each section is independent; the README edit is a few-line add; the new test file is independent)
-- [x] Commit `TBD until commit lands`
+- [x] Commit `38443da`
 
 ## Gate 7 — Verify-Reproducible
 - [x] Command (copy-pasteable): `python3 -m pytest tests/ -q --tb=short`
