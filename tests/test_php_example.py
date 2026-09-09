@@ -9,6 +9,7 @@ Shared structural logic lives in tests/_spec_helpers.py.
 """
 from __future__ import annotations
 
+import shutil
 import re
 import subprocess
 from pathlib import Path
@@ -87,12 +88,19 @@ def test_gate_7_cites_php_test_command() -> None:
     )
 
 
+@pytest.mark.skipif(
+    shutil.which("php") is None,
+    reason="php CLI not installed in this CI job — install via shivammathur/setup-php or apt",
+)
 def test_gate_7_reproduction_actually_runs() -> None:
     """Run the PHP example's test file, assert exit 0 + 4/4 pass.
 
     This is the live half of gate 7: structural assertions in
     test_gate_7_cites_php_test_command prove the spec is followed; this
     test proves the cited command is real.
+
+    Skipped when `php` is not on PATH — the verify-python job has no
+    PHP runtime; only verify-php does.
     """
     test_file = EXAMPLES_PHP / "tests" / "Controller" / "HealthControllerTest.php"
     assert test_file.is_file(), f"PHP test file missing: {test_file}"

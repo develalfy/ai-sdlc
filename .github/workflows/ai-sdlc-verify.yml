@@ -54,6 +54,15 @@ jobs:
           php-version: '8.4'
       - name: Run example test (gate 3 + gate 7 reproduction)
         run: php tests/Controller/HealthControllerTest.php
+      - name: Run ai-sdlc php spec-test (live reproduction)
+        # Adds the gate-7 structural + live spec-tests from tests/test_php_example.py
+        # to this PHP-language job, so PHP-side evidence isn't only re-run
+        # from the Python-only verify-python job (where php isn't installed
+        # and the live test correctly skips).
+        run: |
+          cd ../..
+          pip install pytest
+          python -m pytest tests/test_php_example.py -q --tb=short
 
   verify-node:
     name: ai-sdlc verify (node)
@@ -70,6 +79,15 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Run example test suite (gate 3 + gate 7 reproduction)
         run: npx vitest run
+      - name: Run ai-sdlc node spec-test (live reproduction)
+        # Same rationale as verify-php: re-runs tests/test_node_example.py
+        # from the Node-only CI job so the live npx vitest reproduction
+        # isn't only run from the Python-only verify-python job (where
+        # node_modules isn't installed and the live test correctly skips).
+        run: |
+          cd ../..
+          pip install pytest
+          python -m pytest tests/test_node_example.py -q --tb=short
 
   verify-protocol-structure:
     name: ai-sdlc verify (spec-test)

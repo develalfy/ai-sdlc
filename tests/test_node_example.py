@@ -11,6 +11,7 @@ Shared structural logic lives in tests/_spec_helpers.py.
 """
 from __future__ import annotations
 
+import shutil
 import re
 import subprocess
 from pathlib import Path
@@ -94,7 +95,12 @@ def test_gate_7_reproduction_actually_runs() -> None:
     (`examples/node/node_modules/.bin/vitest`); the .gitignore in that
     example excludes node_modules/, so this test will SKIP in a fresh
     clone — that's the design: the CI job installs first, then runs.
+
+    Also skipped when `node`/`npm`/`npx` aren't on PATH (the
+    verify-python CI job has no Node runtime).
     """
+    if shutil.which("npx") is None or shutil.which("node") is None:
+        pytest.skip("node/npx not installed in this CI job")
     vitest_bin = EXAMPLES_NODE / "node_modules" / ".bin" / "vitest"
     if not vitest_bin.is_file():
         pytest.skip(
