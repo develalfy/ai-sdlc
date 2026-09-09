@@ -100,6 +100,8 @@ Each one has a filled `task.md`, working code, tests, and a `DONE.md` showing al
 
 The 5-task **dogfood journal** (real bugs caught in Calora and Specboard during testing) lives in `journal/`. See [`journal/SUMMARY.md`](./journal/SUMMARY.md) for the meta-pattern: every bug caught was found by Gate 4 (Context).
 
+A condensed cheat sheet of those 5 bug classes — for fast lookup when reviewing a `DONE.md` — lives at [`docs/failure-modes.md`](./docs/failure-modes.md). Names: *Code defect / Copy-paste defect / Format defect / Discipline defect / Math defect*. Walk your diff against them before trusting a green test.
+
 ### 4. Skip it when not needed
 
 The protocol is **only** for non-trivial work. Skip it for:
@@ -129,9 +131,13 @@ ai-sdlc/
 │   ├── php/                # Symfony controller, tests pass
 │   └── node/               # React refactor, tests pass
 ├── tests/
-│   └── test_python_example.py
+│   ├── _spec_helpers.py        # Shared structural assertions for all examples
+│   ├── test_python_example.py  # Python worked example — 7-gate spec-test
+│   ├── test_php_example.py     # PHP worked example — 7-gate spec-test
+│   └── test_node_example.py    # Node worked example — 7-gate spec-test
 ├── docs/
-│   └── ceo-plan.md         # Why this exists, dogfood protocol, kill-switch
+│   ├── ceo-plan.md             # Why this exists, dogfood protocol, kill-switch
+│   └── failure-modes.md        # 5 dogfood bug classes as a cheat sheet
 ├── journal/                # Real-world dogfood evidence
 │   ├── SUMMARY.md          # 5-task dogfood kill-switch PASS
 │   └── 00N-*.md            # Per-task journal entries (in dogfood repos)
