@@ -1,9 +1,9 @@
-"""Walk the examples/python/ worked example end-to-end and assert all seven
+"""Walk the examples/php/ worked example end-to-end and assert all seven
 gates from PROTOCOL.md are satisfied in that example's DONE.md.
 
 Gate 7 (Verify-Reproducible) is verified by re-running the test command
 embedded in DONE.md and asserting the exit code + summary line are
-structurally similar (not byte-identical — timing drift is expected).
+structurally similar (not byte-identical).
 
 Shared structural logic lives in tests/_spec_helpers.py.
 """
@@ -15,23 +15,20 @@ from pathlib import Path
 
 import pytest
 
-from _spec_helpers import (  # noqa: E402
-    gate_sections,
-    has_pass_summary,
-    structural_assertions,
-)
+from _spec_helpers import structural_assertions, has_pass_summary  # noqa: E402
 
-EXAMPLES_PY = Path(__file__).resolve().parents[1] / "examples" / "python"
-DONE_MD = EXAMPLES_PY / "DONE.md"
+EXAMPLES_PHP = Path(__file__).resolve().parents[1] / "examples" / "php"
+DONE_MD = EXAMPLES_PHP / "DONE.md"
 
 pytestmark = pytest.mark.skipif(
     not DONE_MD.is_file(),
-    reason="examples/python/DONE.md not present yet (subagent still drafting)",
+    reason="examples/php/DONE.md not present yet",
 )
 
 
 def test_all_seven_gate_sections_present() -> None:
     text = DONE_MD.read_text(encoding="utf-8")
+    from _spec_helpers import gate_sections
     sections = gate_sections(text)
     missing = [n for n in range(1, 8) if n not in sections]
     assert not missing, f"DONE.md missing gate section(s): {missing}"
@@ -39,20 +36,27 @@ def test_all_seven_gate_sections_present() -> None:
 
 @pytest.mark.parametrize("gate", [1, 2, 3, 4, 5, 6, 7])
 def test_each_gate_has_checked_box(gate: int) -> None:
+    from _spec_helpers import gate_sections
     text = DONE_MD.read_text(encoding="utf-8")
     section = gate_sections(text)[gate]
     assert "- [x]" in section, f"gate {gate} has no [x] checkbox in DONE.md"
 
 
-def test_gate_3_has_pytest_summary() -> None:
+def test_gate_3_has_php_summary() -> None:
+    """PHP runner prints 'N/N assertions passed' rather than pytest's
+    'N passed'. Match either so a future port to PHPUnit (with the pytest
+    line shape) is also accepted."""
+    from _spec_helpers import gate_sections
     text = DONE_MD.read_text(encoding="utf-8")
     section = gate_sections(text)[3]
     assert has_pass_summary(section), (
-        "gate 3 evidence must contain a passing-test summary line (e.g. '4 passed')"
+        "gate 3 evidence must contain a passing-test summary line "
+        "(e.g. '4/4 assertions passed' or '4 passed')"
     )
 
 
 def test_gate_4_lists_at_least_one_file_read() -> None:
+    from _spec_helpers import gate_sections
     text = DONE_MD.read_text(encoding="utf-8")
     section = gate_sections(text)[4]
     file_lines = [
@@ -63,6 +67,7 @@ def test_gate_4_lists_at_least_one_file_read() -> None:
 
 
 def test_gate_6_mentions_git_revert() -> None:
+    from _spec_helpers import gate_sections
     text = DONE_MD.read_text(encoding="utf-8")
     section = gate_sections(text)[6]
     assert "git revert" in section, (
@@ -70,25 +75,30 @@ def test_gate_6_mentions_git_revert() -> None:
     )
 
 
-def test_gate_7_has_reproduction_command() -> None:
+def test_gate_7_cites_php_test_command() -> None:
+    from _spec_helpers import gate_sections
     text = DONE_MD.read_text(encoding="utf-8")
     section = gate_sections(text)[7]
-    assert "pytest" in section, "gate 7 must cite a pytest-style command"
+    # PHP example uses `php tests/...` (single-file runner, no phpunit).
+    assert "php " in section, "gate 7 must cite a `php <test-file>` command"
     assert has_pass_summary(section), (
-        "gate 7 must include an expected summary line with 'N passed'"
+        "gate 7 must include an expected summary line with 'N passed' "
+        "or 'N/N assertions passed'"
     )
 
 
 def test_gate_7_reproduction_actually_runs() -> None:
-    """Run the python example's pytest, assert exit 0 + a 4/4 pass result.
+    """Run the PHP example's test file, assert exit 0 + 4/4 pass.
 
     This is the live half of gate 7: structural assertions in
-    test_gate_7_has_reproduction_command prove the spec is followed; this
+    test_gate_7_cites_php_test_command prove the spec is followed; this
     test proves the cited command is real.
     """
+    test_file = EXAMPLES_PHP / "tests" / "Controller" / "HealthControllerTest.php"
+    assert test_file.is_file(), f"PHP test file missing: {test_file}"
     result = subprocess.run(
-        ["python3", "-m", "pytest", "test_app.py", "-q", "--tb=short"],
-        cwd=str(EXAMPLES_PY),
+        ["php", str(test_file)],
+        cwd=str(EXAMPLES_PHP),
         capture_output=True,
         text=True,
         timeout=60,
@@ -97,12 +107,13 @@ def test_gate_7_reproduction_actually_runs() -> None:
         f"gate 7 reproduction failed: rc={result.returncode}\n"
         f"stdout: {result.stdout}\nstderr: {result.stderr}"
     )
-    assert re.search(r"4\s+passed", result.stdout), (
-        f"gate 7 reproduction: expected 4 passed in pytest output, got:\n{result.stdout}"
+    assert re.search(r"4/4\s+assertions\s+passed", result.stdout), (
+        f"gate 7 reproduction: expected '4/4 assertions passed' in stdout, "
+        f"got:\n{result.stdout}"
     )
 
 
-def test_structural_assertions_helper_agrees_on_python_done() -> None:
+def test_structural_assertions_helper_agrees_on_php_done() -> None:
     """Sanity-check that the shared helper produces the same PASS as the
     example-specific structural tests above. If this fails, the helper and
     the example tests have drifted and one is wrong."""

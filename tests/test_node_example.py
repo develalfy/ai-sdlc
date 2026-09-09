@@ -1,9 +1,11 @@
-"""Walk the examples/python/ worked example end-to-end and assert all seven
+"""Walk the examples/node/ worked example end-to-end and assert all seven
 gates from PROTOCOL.md are satisfied in that example's DONE.md.
 
 Gate 7 (Verify-Reproducible) is verified by re-running the test command
 embedded in DONE.md and asserting the exit code + summary line are
-structurally similar (not byte-identical — timing drift is expected).
+structurally similar (not byte-identical — vitest's `Start at HH:MM:SS`
+and `Duration Xms` will drift run-to-run, but `Tests N passed (N)` does
+not).
 
 Shared structural logic lives in tests/_spec_helpers.py.
 """
@@ -21,12 +23,12 @@ from _spec_helpers import (  # noqa: E402
     structural_assertions,
 )
 
-EXAMPLES_PY = Path(__file__).resolve().parents[1] / "examples" / "python"
-DONE_MD = EXAMPLES_PY / "DONE.md"
+EXAMPLES_NODE = Path(__file__).resolve().parents[1] / "examples" / "node"
+DONE_MD = EXAMPLES_NODE / "DONE.md"
 
 pytestmark = pytest.mark.skipif(
     not DONE_MD.is_file(),
-    reason="examples/python/DONE.md not present yet (subagent still drafting)",
+    reason="examples/node/DONE.md not present yet",
 )
 
 
@@ -44,11 +46,15 @@ def test_each_gate_has_checked_box(gate: int) -> None:
     assert "- [x]" in section, f"gate {gate} has no [x] checkbox in DONE.md"
 
 
-def test_gate_3_has_pytest_summary() -> None:
+def test_gate_3_has_vitest_summary() -> None:
+    """vitest prints 'Tests  N passed (N)' on its own line. The shared
+    helper accepts both the pytest 'N passed' and the PHP 'N/N assertions
+    passed' shapes; vitest's output matches the pytest shape, so
+    `has_pass_summary` is the right gate."""
     text = DONE_MD.read_text(encoding="utf-8")
     section = gate_sections(text)[3]
     assert has_pass_summary(section), (
-        "gate 3 evidence must contain a passing-test summary line (e.g. '4 passed')"
+        "gate 3 evidence must contain a 'N passed' summary line"
     )
 
 
@@ -70,39 +76,50 @@ def test_gate_6_mentions_git_revert() -> None:
     )
 
 
-def test_gate_7_has_reproduction_command() -> None:
+def test_gate_7_cites_vitest_command() -> None:
     text = DONE_MD.read_text(encoding="utf-8")
     section = gate_sections(text)[7]
-    assert "pytest" in section, "gate 7 must cite a pytest-style command"
+    assert re.search(r"\bnpx\s+vitest\b|\bnpm\s+test\b", section), (
+        "gate 7 must cite a vitest-style command (`npx vitest run` or `npm test`)"
+    )
     assert has_pass_summary(section), (
         "gate 7 must include an expected summary line with 'N passed'"
     )
 
 
 def test_gate_7_reproduction_actually_runs() -> None:
-    """Run the python example's pytest, assert exit 0 + a 4/4 pass result.
+    """Run the Node example's vitest, assert exit 0 + 4/4 pass.
 
-    This is the live half of gate 7: structural assertions in
-    test_gate_7_has_reproduction_command prove the spec is followed; this
-    test proves the cited command is real.
+    The vitest binary is expected to be installed already
+    (`examples/node/node_modules/.bin/vitest`); the .gitignore in that
+    example excludes node_modules/, so this test will SKIP in a fresh
+    clone — that's the design: the CI job installs first, then runs.
     """
+    vitest_bin = EXAMPLES_NODE / "node_modules" / ".bin" / "vitest"
+    if not vitest_bin.is_file():
+        pytest.skip(
+            f"vitest not installed at {vitest_bin}; "
+            "run `npm install` in examples/node/ first (CI does this)."
+        )
     result = subprocess.run(
-        ["python3", "-m", "pytest", "test_app.py", "-q", "--tb=short"],
-        cwd=str(EXAMPLES_PY),
+        ["npx", "vitest", "run"],
+        cwd=str(EXAMPLES_NODE),
         capture_output=True,
         text=True,
-        timeout=60,
+        timeout=120,
     )
     assert result.returncode == 0, (
         f"gate 7 reproduction failed: rc={result.returncode}\n"
         f"stdout: {result.stdout}\nstderr: {result.stderr}"
     )
-    assert re.search(r"4\s+passed", result.stdout), (
-        f"gate 7 reproduction: expected 4 passed in pytest output, got:\n{result.stdout}"
+    # vitest summary line is "Tests  4 passed (4)" with whitespace.
+    assert re.search(r"Tests\s+4\s+passed\s+\(4\)", result.stdout), (
+        f"gate 7 reproduction: expected 'Tests  4 passed (4)' in vitest output, "
+        f"got:\n{result.stdout}"
     )
 
 
-def test_structural_assertions_helper_agrees_on_python_done() -> None:
+def test_structural_assertions_helper_agrees_on_node_done() -> None:
     """Sanity-check that the shared helper produces the same PASS as the
     example-specific structural tests above. If this fails, the helper and
     the example tests have drifted and one is wrong."""
