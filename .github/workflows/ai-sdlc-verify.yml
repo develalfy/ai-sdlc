@@ -84,3 +84,40 @@ jobs:
           pip install pytest
           pip install -r examples/python/requirements.txt
           python -m pytest tests/ -q --tb=short
+
+  verify-install-sh:
+    name: ai-sdlc verify (install.sh SHA pin)
+    # Confirms that the SHA-pinning in PROTOCOL.md §9 matches the SHA of
+    # the shipped SKILL.md. PROTOCOL.md and SKILL.md are the two artifacts
+    # every install reads; this job catches a release that bumps SKILL.md
+    # without bumping the §9 baseline (or vice versa).
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compute SKILL.md SHA and check against PROTOCOL.md §9
+        run: |
+          ACTUAL="$(sha256sum SKILL.md | awk '{print $1}')"
+          EXPECTED="$(awk '/SKILL\.md expected SHA256:/ {print $NF}' PROTOCOL.md | tr -d '\`')"
+          echo "actual:   $ACTUAL"
+          echo "expected: $EXPECTED"
+          if [ "$ACTUAL" != "$EXPECTED" ]; then
+            echo "::error::SKILL.md SHA does not match the PROTOCOL.md §9 baseline."
+            echo "::error::Update PROTOCOL.md §9 to the new SHA when shipping a SKILL.md change."
+            exit 1
+          fi
+          echo "OK: SKILL.md SHA matches PROTOCOL.md §9."
+      - name: Run install.sh (clean path)
+        run: |
+          ./install.sh
+          test -s "$HOME/.hermes/skills/ai-sdlc/SKILL.md"
+      - name: Tamper test — install.sh refuses a doctored SKILL.md
+        run: |
+          cp SKILL.md /tmp/SKILL.md.orig
+          printf '\n# tamper\n' >> SKILL.md
+          ./install.sh; rc=$?
+          mv /tmp/SKILL.md.orig SKILL.md
+          if [ "$rc" -eq 0 ]; then
+            echo "::error::install.sh accepted a tampered SKILL.md; expected non-zero exit."
+            exit 1
+          fi
+          echo "OK: install.sh refused the tampered SKILL.md with exit $rc."

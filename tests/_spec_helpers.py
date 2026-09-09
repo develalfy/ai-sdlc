@@ -28,10 +28,7 @@ session for the tightening that applied to this helper.
 from __future__ import annotations
 
 import re
-from collections.abc import Iterator
 from pathlib import Path
-
-import pytest
 
 
 def gate_sections(done_text: str) -> dict[int, str]:
@@ -113,12 +110,3 @@ def structural_assertions(done_path: Path) -> None:
     assert "git revert" in sections[6], (
         f"{done_path}: gate 6 evidence must mention `git revert` per PROTOCOL.md §3"
     )
-
-
-@pytest.fixture()
-def done_path(request: pytest.FixtureRequest) -> Iterator[Path]:
-    """Each example test parametrizes a path to its DONE.md."""
-    p: Path = request.param
-    if not p.is_file():
-        pytest.skip(f"{p} not present (example not yet drafted)")
-    yield p
