@@ -242,3 +242,24 @@ See `CONTRIBUTING.md`.
 ## 8. License
 
 MIT — see `LICENSE`.
+
+---
+
+## 9. Install integrity (v0.1+)
+
+`SKILL.md` is the consumer artifact that gets installed into a target agent's
+skill directory (e.g. `~/.hermes/skills/ai-sdlc/`). To detect tampering of a
+local clone before installation, `install.sh` computes the SHA256 of the
+local `SKILL.md` and refuses to install if it does not match the canonical
+SHA published below.
+
+**Canonical SKILL.md expected SHA256:** `25053a9a38bf31af8171a732c105a705a0170c237082f56e6f0756b1134ff85c`
+
+When this SHA changes (a real release), the published value above is updated
+in the same commit that changes `SKILL.md`. Reviewers MUST verify the
+SHA-in-PROTOCOL matches the SHA of the file under review (one terminal
+command — see `install.sh`).
+
+Forks and local customizations: pass `--no-verify` to bypass the check. The
+script still prints the computed SHA so you can publish your own baseline
+in your fork's `PROTOCOL.md`.
