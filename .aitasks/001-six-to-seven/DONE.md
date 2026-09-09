@@ -27,7 +27,7 @@
 - [x] All four prior gate boxes ticked, evidence present and non-contradictory
 
 ## Gate 6 — Recover
-- [x] `git revert HEAD --no-commit` dry-run succeeded; commit `561c754`
+- [x] `git revert HEAD --no-commit` dry-run succeeded; commit `561c754 → 1109b50`
 
 ## Gate 7 — Verify-Reproducible
 - [x] Command (copy-pasteable): `python3 -m pytest tests/ -q --tb=short`
