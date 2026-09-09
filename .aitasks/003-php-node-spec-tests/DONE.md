@@ -31,7 +31,7 @@
 
 ## Gate 6 — Recover
 - [x] `git revert HEAD --no-commit` dry-run succeeded: no conflict (each new test file is independent; modifying test_python_example.py only swaps inline helpers for imports)
-- [x] Commit `TBD until commit lands` — will fill post-commit
+- [x] Commit `72e4707`
 
 ## Gate 7 — Verify-Reproducible
 - [x] Command (copy-pasteable): `python3 -m pytest tests/ -q --tb=short`
