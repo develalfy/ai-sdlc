@@ -31,7 +31,7 @@
 - [x] All four prior gate boxes ticked; evidence present, no contradictions
 
 ## Gate 6 — Recover
-- [x] Commit `c18c614 → TBD` (Pass-1 sha still pending; this DONE is committed together with the PROTOCOL.md + install.sh change in a single feat commit)
+- [x] Commit `52a4a2e`
 
 ## Gate 7 — Verify-Reproducible
 - [x] Command (copy-pasteable):
