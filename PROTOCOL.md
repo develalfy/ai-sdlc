@@ -2,7 +2,7 @@
 
 **Version:** 0.1.0 · **Status:** Stable, public-push ready pending dogfood
 **License:** MIT
-**Up-to-date spec source:** https://github.com/elalfy/ai-sdlc/blob/main/PROTOCOL.md
+**Up-to-date spec source:** https://github.com/develalfy/ai-sdlc/blob/main/PROTOCOL.md
 
 ---
 

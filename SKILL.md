@@ -85,7 +85,7 @@ Status line is a shortcut, not a substitute. DONE.md is the source of truth.
 Copy from the ai-sdlc repo:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/elalfy/ai-sdlc/main/templates/DONE.md > DONE.md
+curl -fsSL https://raw.githubusercontent.com/develalfy/ai-sdlc/main/templates/DONE.md > DONE.md
 ```
 
 (Pinned SHA verification is on the roadmap; see PROTOCOL.md §7.)
