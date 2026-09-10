@@ -60,6 +60,17 @@ def file_read_lines(section_text: str) -> list[str]:
     return out
 
 
+# ANSI escape-sequence stripper. Vitest emits CSI sequences (e.g. ESC[1m)
+# to its stdout when stdout is captured by subprocess.run inside CI but
+# the runner's TTY detection disagrees with vitest's. Stripping them
+# before regex-searching avoids brittle whitespace matches.
+_ANSI_ESCAPE_RE = re.compile(r"\x1b\[[0-9;]*m")
+
+
+def _strip_ansi(s: str) -> str:
+    return _ANSI_ESCAPE_RE.sub("", s)
+
+
 def has_pass_summary(section_text: str) -> bool:
     """True iff the section text contains a summary line with N >= 1
     passing tests/assertions across the three supported runners.

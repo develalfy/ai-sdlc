@@ -22,6 +22,7 @@ from _spec_helpers import (  # noqa: E402
     gate_sections,
     has_pass_summary,
     structural_assertions,
+    _ANSI_ESCAPE_RE,  # internal but tests use it to strip vitest ANSI noise
 )
 
 EXAMPLES_NODE = Path(__file__).resolve().parents[1] / "examples" / "node"
@@ -118,10 +119,15 @@ def test_gate_7_reproduction_actually_runs() -> None:
         f"gate 7 reproduction failed: rc={result.returncode}\n"
         f"stdout: {result.stdout}\nstderr: {result.stderr}"
     )
+    # vitest emits CSI escape sequences (ESC[1m, ESC[36m, etc.) to its
+    # stdout when captured by subprocess.run inside CI — strip them
+    # before searching. Locally the TTY case suppresses them; CI's
+    # captured pipe does not.
+    cleaned = _ANSI_ESCAPE_RE.sub("", result.stdout)
     # vitest summary line is "Tests  4 passed (4)" with whitespace.
-    assert re.search(r"Tests\s+4\s+passed\s+\(4\)", result.stdout), (
+    assert re.search(r"Tests\s+4\s+passed\s+\(4\)", cleaned), (
         f"gate 7 reproduction: expected 'Tests  4 passed (4)' in vitest output, "
-        f"got:\n{result.stdout}"
+        f"got (ANSI-stripped):\n{cleaned}"
     )
 
 

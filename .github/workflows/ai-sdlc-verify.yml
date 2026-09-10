@@ -132,7 +132,12 @@ jobs:
         run: |
           cp SKILL.md /tmp/SKILL.md.orig
           printf '\n# tamper\n' >> SKILL.md
-          ./install.sh; rc=$?
+          # GitHub Actions wraps `run:` in `bash -e {0}`. The
+          # `cmd; rc=$?` idiom is NOT set -e-safe — set -e aborts
+          # before the assignment runs. Use `cmd || rc=$?` instead,
+          # which absorbs the failure into the OR branch so the
+          # whole statement returns 0 and set -e doesn't fire.
+          ./install.sh || rc=$?
           mv /tmp/SKILL.md.orig SKILL.md
           if [ "$rc" -eq 0 ]; then
             echo "::error::install.sh accepted a tampered SKILL.md; expected non-zero exit."
